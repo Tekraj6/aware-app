@@ -1,0 +1,8 @@
+{
+  "name": "Aware - Johari Window & Self-Awareness",
+  "description": "Understand yourself and grow with the Johari Window framework. Collect feedback across Open Area, Blind Spot, Hidden Area, and Unknown Area.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
