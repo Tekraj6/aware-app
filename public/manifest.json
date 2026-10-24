@@ -1,0 +1,23 @@
+{
+  "short_name": "Aware",
+  "name": "Aware - Johari Window & Self-Awareness",
+  "description": "Understand yourself and grow with the Johari Window framework. Collect feedback across Open Area, Blind Spot, Hidden Area, and Unknown Area.",
+  "icons": [
+    {
+      "src": "/assets/icon.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/favicon.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#FAFAFA",
+  "theme_color": "#4A3AFF",
+  "display": "standalone",
+  "orientation": "portrait"
+}
