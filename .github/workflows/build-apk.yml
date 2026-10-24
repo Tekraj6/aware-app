@@ -13,36 +13,43 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Configure Safe Directory for Git
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE" || true
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 1
+
+      - name: Ensure Git Safe Directory After Checkout
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory /home/runner/work/*
 
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Install Node Dependencies
+      - name: Setup Java JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Install Dependencies
         run: npm install --no-audit
 
       - name: Build Web Application
         run: npm run build
 
-      - name: Setup Java JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Setup Capacitor and Android Platform
+      - name: Add and Sync Android Platform
         run: |
-          npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init "Aware" "com.tekraj.aware" --web-dir dist
-          npx cap add android
+          npx cap add android || true
           npx cap sync android
 
       - name: Build Debug APK with Gradle
