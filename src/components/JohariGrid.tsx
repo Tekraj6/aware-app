@@ -34,18 +34,21 @@ function QuadrantCard({
         }
       }}
       style={{
-        flex: 1,
+        width: '100%',
+        minWidth: 0,
+        height: '100%',
+        minHeight: 168,
         padding: Spacing.md,
         borderRadius: BorderRadius.lg,
         border: `1px solid ${qColors.accent}33`,
         backgroundColor: qColors.bg,
-        minHeight: 160,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
         cursor: 'pointer',
         transition: 'transform 0.15s ease, box-shadow 0.15s ease',
         userSelect: 'none',
+        boxSizing: 'border-box',
       }}
       className="hover:scale-[1.02] active:scale-[0.98] transition-transform shadow-sm"
     >
@@ -66,11 +69,12 @@ function QuadrantCard({
         </div>
         <div
           style={{
-            fontSize: Typography.h3.fontSize,
+            fontSize: 15,
             fontWeight: Typography.h3.fontWeight,
             lineHeight: Typography.h3.lineHeight,
             color: qColors.accent,
             marginBottom: 2,
+            wordBreak: 'normal',
           }}
         >
           {info.title}
@@ -82,6 +86,11 @@ function QuadrantCard({
             lineHeight: '14px',
             color: `${qColors.accent}AA`,
             marginBottom: Spacing.sm,
+            minHeight: 28,
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
           }}
         >
           {info.subtitle}
@@ -94,6 +103,7 @@ function QuadrantCard({
           flexDirection: 'row',
           alignItems: 'baseline',
           gap: 4,
+          minWidth: 0,
         }}
       >
         <span
@@ -101,6 +111,7 @@ function QuadrantCard({
             fontSize: 20,
             fontWeight: 700,
             color: qColors.accent,
+            lineHeight: 1,
           }}
         >
           {count}
@@ -124,8 +135,23 @@ function QuadrantCard({
 
 export default function JohariGrid({ counts, onPress }: JohariGridProps) {
   return (
-    <div style={{ paddingLeft: Spacing.md, paddingRight: Spacing.md }}>
-      <div style={{ display: 'flex', flexDirection: 'row', gap: Spacing.md, marginBottom: Spacing.md }}>
+    <div
+      style={{
+        paddingLeft: Spacing.md,
+        paddingRight: Spacing.md,
+        width: '100%',
+        boxSizing: 'border-box',
+      }}
+    >
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+          gap: Spacing.md,
+          width: '100%',
+          boxSizing: 'border-box',
+        }}
+      >
         <QuadrantCard
           quadrant="open"
           count={counts.open}
@@ -136,8 +162,6 @@ export default function JohariGrid({ counts, onPress }: JohariGridProps) {
           count={counts.blindspot}
           onPress={() => onPress('blindspot')}
         />
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'row', gap: Spacing.md }}>
         <QuadrantCard
           quadrant="hidden"
           count={counts.hidden}

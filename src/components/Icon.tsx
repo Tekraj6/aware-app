@@ -31,6 +31,9 @@ import {
   AlertTriangle,
   CheckCircle2,
   Info,
+  FileText,
+  FileCode,
+  Mail,
   LucideProps,
 } from 'lucide-react';
 
@@ -118,6 +121,14 @@ export default function Icon({ name, size = 20, color = 'currentColor', classNam
       return <CheckCircle2 {...iconProps} />;
     case 'information-circle':
       return <Info {...iconProps} />;
+    case 'pdf':
+    case 'file-text':
+      return <FileText {...iconProps} />;
+    case 'json':
+    case 'file-code':
+      return <FileCode {...iconProps} />;
+    case 'mail':
+      return <Mail {...iconProps} />;
     default:
       return <HelpCircle {...iconProps} />;
   }

@@ -4,10 +4,14 @@ import {
   getProfile,
   getStats,
   saveProfile,
+  getFeedback,
+  getJournalEntries,
+  getRealizations,
   exportAllData,
   resetAllData,
   UserProfile,
 } from '../storage/dataStore';
+import { generateJohariPdf } from '../utils/exportPdf';
 import PrimaryButton from '../components/PrimaryButton';
 import { Spacing, Typography, BorderRadius } from '../constants/theme';
 import Icon from '../components/Icon';
@@ -56,6 +60,30 @@ export default function ProfileTabScreen({ onResetToOnboarding }: ProfileTabScre
     }
   };
 
+  const [exportingPdf, setExportingPdf] = useState(false);
+
+  const handleExportPdf = async () => {
+    setExportingPdf(true);
+    try {
+      const [f, j, r] = await Promise.all([
+        getFeedback(),
+        getJournalEntries(),
+        getRealizations(),
+      ]);
+      generateJohariPdf({
+        profile,
+        feedback: f,
+        journal: j,
+        realizations: r,
+      });
+    } catch (error) {
+      console.error('PDF Export failed:', error);
+      alert('Failed to generate PDF report');
+    } finally {
+      setExportingPdf(false);
+    }
+  };
+
   const handleExport = async () => {
     try {
       const data = await exportAllData();
@@ -84,7 +112,8 @@ export default function ProfileTabScreen({ onResetToOnboarding }: ProfileTabScre
     <div
       style={{
         flex: 1,
-        padding: Spacing.md,
+        minWidth: 0,
+        padding: '14px 6px',
         borderRadius: BorderRadius.lg,
         border: `1px solid ${colors.cardBorder}`,
         backgroundColor: colors.card,
@@ -92,16 +121,17 @@ export default function ProfileTabScreen({ onResetToOnboarding }: ProfileTabScre
         flexDirection: 'column',
         alignItems: 'center',
         textAlign: 'center',
+        boxSizing: 'border-box',
       }}
     >
-      <Icon name={icon} size={24} color={colors.accent} />
+      <Icon name={icon} size={22} color={colors.accent} />
       <div
         style={{
           fontSize: Typography.h2.fontSize,
           fontWeight: Typography.h2.fontWeight,
           lineHeight: Typography.h2.lineHeight,
           color: colors.textPrimary,
-          marginTop: Spacing.sm,
+          marginTop: Spacing.xs,
           marginBottom: 2,
         }}
       >
@@ -110,8 +140,13 @@ export default function ProfileTabScreen({ onResetToOnboarding }: ProfileTabScre
       <div
         style={{
           fontSize: 11,
-          fontWeight: 500,
+          fontWeight: 600,
           color: colors.textSecondary,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          width: '100%',
+          textAlign: 'center',
         }}
       >
         {label}
@@ -125,7 +160,7 @@ export default function ProfileTabScreen({ onResetToOnboarding }: ProfileTabScre
         display: 'flex',
         flexDirection: 'column',
         minHeight: '100%',
-        paddingBottom: Spacing.xxl * 2,
+        paddingBottom: 120,
         boxSizing: 'border-box',
       }}
     >
@@ -152,7 +187,15 @@ export default function ProfileTabScreen({ onResetToOnboarding }: ProfileTabScre
         </h1>
       </div>
 
-      <div style={{ padding: Spacing.md }}>
+      <div
+        style={{
+          padding: Spacing.md,
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          overflowX: 'hidden',
+        }}
+      >
         {/* Profile Avatar & Info */}
         <div
           style={{
@@ -382,12 +425,20 @@ export default function ProfileTabScreen({ onResetToOnboarding }: ProfileTabScre
             Data
           </h2>
 
-          <div style={{ marginBottom: Spacing.md }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: Spacing.sm, marginBottom: Spacing.md }}>
             <PrimaryButton
-              title="Export My Data"
+              title="Export PDF Report (4 Categories)"
+              onPress={handleExportPdf}
+              loading={exportingPdf}
+              variant="primary"
+              icon={<Icon name="pdf" size={20} color="#fff" />}
+            />
+
+            <PrimaryButton
+              title="Export as JSON"
               onPress={handleExport}
               variant="secondary"
-              icon={<Icon name="download-outline" size={20} color={colors.accent} />}
+              icon={<Icon name="json" size={20} color={colors.accent} />}
             />
           </div>
 
@@ -441,6 +492,128 @@ export default function ProfileTabScreen({ onResetToOnboarding }: ProfileTabScre
             Joseph Luft and Harry Ingham. It helps you understand your relationship with yourself
             and others.
           </p>
+        </div>
+
+        {/* About Me Section */}
+        <div
+          style={{
+            padding: Spacing.lg,
+            borderRadius: BorderRadius.lg,
+            border: `1px solid ${colors.cardBorder}`,
+            backgroundColor: colors.card,
+            marginTop: Spacing.md,
+            marginBottom: Spacing.md,
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: Spacing.sm,
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: Spacing.sm,
+              }}
+            >
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 18,
+                  backgroundColor: colors.accentLight,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Icon name="sparkles" size={18} color={colors.accent} />
+              </div>
+              <div>
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    letterSpacing: '0.5px',
+                    color: colors.accent,
+                    textTransform: 'uppercase',
+                    display: 'block',
+                  }}
+                >
+                  About the Creator
+                </span>
+                <span
+                  style={{
+                    fontSize: Typography.h3.fontSize,
+                    fontWeight: Typography.h3.fontWeight,
+                    color: colors.textPrimary,
+                  }}
+                >
+                  Er. Tekraj Khadka
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <p
+            style={{
+              fontSize: Typography.bodySmall.fontSize,
+              lineHeight: '24px',
+              color: colors.textSecondary,
+              marginTop: Spacing.xs,
+              marginBottom: Spacing.md,
+              textAlign: 'left',
+              textWrap: 'pretty' as any,
+            }}
+          >
+            I am deeply interested in creating meaningful digital tools that connect life and
+            technology. Feedback and suggestions are always welcome.
+          </p>
+
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: Spacing.xs,
+              padding: Spacing.md,
+              borderRadius: BorderRadius.md,
+              backgroundColor: colors.background,
+              border: `1px solid ${colors.cardBorder}`,
+            }}
+          >
+            <span
+              style={{
+                fontSize: Typography.caption.fontSize,
+                fontWeight: 600,
+                color: colors.textSecondary,
+              }}
+            >
+              Email for feedback &amp; suggestions:
+            </span>
+            <a
+              href="mailto:khadkatekraj150@gmail.com?subject=Aware%20App%20Feedback%20%26%20Suggestions"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: Spacing.xs,
+                color: colors.accent,
+                textDecoration: 'none',
+                fontSize: Typography.bodySmall.fontSize,
+                fontWeight: 600,
+                wordBreak: 'break-all',
+              }}
+              className="hover:underline"
+            >
+              <Icon name="mail" size={16} color={colors.accent} />
+              <span>khadkatekraj150@gmail.com</span>
+            </a>
+          </div>
         </div>
       </div>
 

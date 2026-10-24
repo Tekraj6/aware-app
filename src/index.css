@@ -22,14 +22,28 @@ html.dark, html.dark body {
 #root {
   width: 100%;
   height: 100%;
+  height: 100dvh;
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: #F0F0F5;
 }
 
+@media (max-width: 480px) {
+  #root {
+    background-color: transparent;
+    align-items: stretch;
+  }
+}
+
 html.dark #root {
   background-color: #050508;
+}
+
+@media (max-width: 480px) {
+  html.dark #root {
+    background-color: transparent;
+  }
 }
 
 @keyframes spin {

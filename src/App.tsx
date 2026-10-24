@@ -97,7 +97,9 @@ export default function App() {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        height: '100vh',
+        height: '100%',
+        minHeight: '100dvh',
+        maxHeight: '100dvh',
         width: '100%',
         maxWidth: 480,
         margin: '0 auto',
