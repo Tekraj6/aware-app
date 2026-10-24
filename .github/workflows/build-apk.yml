@@ -24,11 +24,11 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 1
+          submodules: false
 
       - name: Ensure Git Safe Directory After Checkout
         run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory /home/runner/work/*
+          git config --global --add safe.directory "$GITHUB_WORKSPACE" || true
 
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
