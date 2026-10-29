@@ -12,7 +12,12 @@ import {
   UserProfile,
 } from '../storage/dataStore';
 import { generateJohariPdf } from '../utils/exportPdf';
-import { saveOrShareFile } from '../utils/fileDownloader';
+import {
+  downloadFileToDevice,
+  openDownloadedFile,
+  shareDownloadedFile,
+  ExportResult,
+} from '../utils/fileDownloader';
 import PrimaryButton from '../components/PrimaryButton';
 import { Spacing, Typography, BorderRadius } from '../constants/theme';
 import Icon from '../components/Icon';
@@ -30,6 +35,7 @@ export default function ProfileTabScreen({ onResetToOnboarding }: ProfileTabScre
     realizationCount: 0,
   });
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [exportResult, setExportResult] = useState<ExportResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const loadData = async () => {
@@ -62,6 +68,7 @@ export default function ProfileTabScreen({ onResetToOnboarding }: ProfileTabScre
   };
 
   const [exportingPdf, setExportingPdf] = useState(false);
+  const [exportingJson, setExportingJson] = useState(false);
 
   const handleExportPdf = async () => {
     setExportingPdf(true);
@@ -71,12 +78,13 @@ export default function ProfileTabScreen({ onResetToOnboarding }: ProfileTabScre
         getJournalEntries(),
         getRealizations(),
       ]);
-      await generateJohariPdf({
+      const res = await generateJohariPdf({
         profile,
         feedback: f,
         journal: j,
         realizations: r,
       });
+      setExportResult(res);
     } catch (error) {
       console.error('PDF Export failed:', error);
       alert('Failed to generate PDF report');
@@ -86,18 +94,22 @@ export default function ProfileTabScreen({ onResetToOnboarding }: ProfileTabScre
   };
 
   const handleExport = async () => {
+    setExportingJson(true);
     try {
       const data = await exportAllData();
-      await saveOrShareFile({
+      const res = await downloadFileToDevice({
         filename: 'aware_export.json',
         data: data,
         mimeType: 'application/json',
         isBase64: false,
         title: 'Aware Data Backup (JSON)',
       });
+      setExportResult(res);
     } catch (error) {
       console.error('Export failed:', error);
       alert('Failed to export your data');
+    } finally {
+      setExportingJson(false);
     }
   };
 
@@ -436,6 +448,7 @@ export default function ProfileTabScreen({ onResetToOnboarding }: ProfileTabScre
             <PrimaryButton
               title="Export as JSON"
               onPress={handleExport}
+              loading={exportingJson}
               variant="secondary"
               icon={<Icon name="json" size={20} color={colors.accent} />}
             />
@@ -674,6 +687,111 @@ export default function ProfileTabScreen({ onResetToOnboarding }: ProfileTabScre
                 onPress={() => setShowResetConfirm(false)}
                 variant="ghost"
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Export Downloaded & Open Modal */}
+      {exportResult && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: Spacing.lg,
+            boxSizing: 'border-box',
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: colors.card,
+              borderRadius: BorderRadius.xl,
+              padding: Spacing.xl,
+              maxWidth: 380,
+              width: '100%',
+              border: `1px solid ${colors.cardBorder}`,
+              boxShadow: '0 20px 40px rgba(0,0,0,0.25)',
+              textAlign: 'center',
+              boxSizing: 'border-box',
+            }}
+          >
+            <div
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: 28,
+                backgroundColor: `${colors.open.accent}20`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto',
+                marginBottom: Spacing.md,
+              }}
+            >
+              <Icon name="checkmark-circle" size={32} color={colors.open.accent} />
+            </div>
+
+            <h3
+              style={{
+                fontSize: Typography.h2.fontSize,
+                fontWeight: Typography.h2.fontWeight,
+                color: colors.textPrimary,
+                marginBottom: Spacing.xs,
+                marginTop: 0,
+              }}
+            >
+              Downloaded to Device
+            </h3>
+
+            <p
+              style={{
+                fontSize: Typography.bodySmall.fontSize,
+                lineHeight: '20px',
+                color: colors.textSecondary,
+                marginBottom: Spacing.lg,
+                marginTop: 0,
+                wordBreak: 'break-all',
+              }}
+            >
+              <strong>{exportResult.filename}</strong> has been saved directly to your device.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: Spacing.sm }}>
+              <PrimaryButton
+                title="Open File"
+                onPress={() => openDownloadedFile(exportResult)}
+                variant="primary"
+                icon={<Icon name="open" size={18} color="#fff" />}
+              />
+
+              <PrimaryButton
+                title="Share / Send"
+                onPress={() => shareDownloadedFile(exportResult)}
+                variant="secondary"
+                icon={<Icon name="share" size={18} color={colors.accent} />}
+              />
+
+              <button
+                type="button"
+                onClick={() => setExportResult(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: colors.textSecondary,
+                  fontSize: Typography.bodySmall.fontSize,
+                  fontWeight: 600,
+                  padding: `${Spacing.sm}px ${Spacing.md}px`,
+                  cursor: 'pointer',
+                  marginTop: Spacing.xs,
+                }}
+              >
+                Done
+              </button>
             </div>
           </div>
         </div>

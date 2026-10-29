@@ -34,6 +34,8 @@ import {
   FileText,
   FileCode,
   Mail,
+  Share2,
+  ExternalLink,
   LucideProps,
 } from 'lucide-react';
 
@@ -129,6 +131,12 @@ export default function Icon({ name, size = 20, color = 'currentColor', classNam
       return <FileCode {...iconProps} />;
     case 'mail':
       return <Mail {...iconProps} />;
+    case 'share':
+    case 'share-outline':
+      return <Share2 {...iconProps} />;
+    case 'open':
+    case 'external-link':
+      return <ExternalLink {...iconProps} />;
     default:
       return <HelpCircle {...iconProps} />;
   }

@@ -6,7 +6,7 @@ import {
   RealizationEntry,
 } from '../storage/dataStore';
 import { getRoleLabel } from '../constants/roles';
-import { saveOrShareFile } from './fileDownloader';
+import { downloadFileToDevice, ExportResult } from './fileDownloader';
 
 interface ExportData {
   profile: UserProfile | null;
@@ -15,7 +15,7 @@ interface ExportData {
   realizations: RealizationEntry[];
 }
 
-export async function generateJohariPdf(data: ExportData): Promise<void> {
+export async function generateJohariPdf(data: ExportData): Promise<ExportResult> {
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -378,9 +378,9 @@ export async function generateJohariPdf(data: ExportData): Promise<void> {
     );
   }
 
-  // Generate base64 data URI and save/share natively in APK or browser
+  // Generate base64 data URI and save directly to device
   const pdfBase64 = doc.output('datauristring');
-  await saveOrShareFile({
+  return await downloadFileToDevice({
     filename: 'aware_johari_window_report.pdf',
     data: pdfBase64,
     mimeType: 'application/pdf',
