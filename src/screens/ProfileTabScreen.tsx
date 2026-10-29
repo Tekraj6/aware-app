@@ -12,6 +12,7 @@ import {
   UserProfile,
 } from '../storage/dataStore';
 import { generateJohariPdf } from '../utils/exportPdf';
+import { saveOrShareFile } from '../utils/fileDownloader';
 import PrimaryButton from '../components/PrimaryButton';
 import { Spacing, Typography, BorderRadius } from '../constants/theme';
 import Icon from '../components/Icon';
@@ -70,7 +71,7 @@ export default function ProfileTabScreen({ onResetToOnboarding }: ProfileTabScre
         getJournalEntries(),
         getRealizations(),
       ]);
-      generateJohariPdf({
+      await generateJohariPdf({
         profile,
         feedback: f,
         journal: j,
@@ -87,15 +88,13 @@ export default function ProfileTabScreen({ onResetToOnboarding }: ProfileTabScre
   const handleExport = async () => {
     try {
       const data = await exportAllData();
-      const blob = new Blob([data], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'aware_export.json';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      await saveOrShareFile({
+        filename: 'aware_export.json',
+        data: data,
+        mimeType: 'application/json',
+        isBase64: false,
+        title: 'Aware Data Backup (JSON)',
+      });
     } catch (error) {
       console.error('Export failed:', error);
       alert('Failed to export your data');

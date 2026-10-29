@@ -6,6 +6,7 @@ import {
   RealizationEntry,
 } from '../storage/dataStore';
 import { getRoleLabel } from '../constants/roles';
+import { saveOrShareFile } from './fileDownloader';
 
 interface ExportData {
   profile: UserProfile | null;
@@ -14,7 +15,7 @@ interface ExportData {
   realizations: RealizationEntry[];
 }
 
-export function generateJohariPdf(data: ExportData) {
+export async function generateJohariPdf(data: ExportData): Promise<void> {
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -377,6 +378,13 @@ export function generateJohariPdf(data: ExportData) {
     );
   }
 
-  // Trigger browser download
-  doc.save('aware_johari_window_report.pdf');
+  // Generate base64 data URI and save/share natively in APK or browser
+  const pdfBase64 = doc.output('datauristring');
+  await saveOrShareFile({
+    filename: 'aware_johari_window_report.pdf',
+    data: pdfBase64,
+    mimeType: 'application/pdf',
+    isBase64: true,
+    title: 'Aware Johari Window PDF Report',
+  });
 }
